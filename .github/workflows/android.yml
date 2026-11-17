@@ -1,0 +1,37 @@
+
+name: Build PineconeBot for Android
+
+on:
+  workflow_dispatch:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [Android64, Android32]
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Build Geode mod
+        id: build
+        uses: geode-sdk/build-geode-mod@main
+        with:
+          sdk: latest
+          cli: latest
+          target: ${{ matrix.target }}
+          path: PineconeBot
+
+      - name: Upload .geode package
+        uses: actions/upload-artifact@v4
+        with:
+          name: PineconeBot-${{ matrix.target }}
+          path: ${{ steps.build.outputs.build-output }}/*.geode
+          if-no-files-found: error
+          
